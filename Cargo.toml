@@ -4,6 +4,8 @@ members = [
 ]
 exclude = [
     "netbench-cdk",
+    "netbench-driver-s2n-quic",
+    "netbench-driver-native-tls"
 ]
 resolver = "2"
 
