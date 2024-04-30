@@ -52,6 +52,31 @@ run_trial() {
     # kills the child processes as well.
     echo "  killing the server"
     kill $(ps -o pid= --ppid $SERVER_PID)
+
+    sleep 2
+
+    echo "generate flamegraph"
+    echo "  running the server"
+    TRACE="disabled" \
+    SCENARIO=./$NETBENCH_ARTIFACT_FOLDER/$SCENARIO.json \
+      ./$ARTIFACT_FOLDER/s2n-netbench-driver-server-$DRIVER &
+    SERVER_PID=$!
+
+    flamegraph \
+      -o $NETBENCH_ARTIFACT_FOLDER/results/$SCENARIO/$DRIVER/server_flamegraph.svg \
+      --pid $SERVER_PID \
+      --skip-after s2n_netbench* &
+
+    sleep 1
+
+    echo "  running the client"
+    TRACE="disabled" \
+    SCENARIO=./$NETBENCH_ARTIFACT_FOLDER/$SCENARIO.json \
+    SERVER_0=localhost:4433 \
+      ./$ARTIFACT_FOLDER/s2n-netbench-driver-client-$DRIVER
+
+    echo "  killing the server"
+    kill $SERVER_PID
 }
 
 git restore netbench-driver-s2n-tls/Cargo.toml
